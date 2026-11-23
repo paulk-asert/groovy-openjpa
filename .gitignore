@@ -1,0 +1,8 @@
+.gradle/
+build/
+.idea/
+*.iml
+bug-reports/java/out/
+
+# Working files from the upstream bug reports; not part of the published examples
+bug-reports/

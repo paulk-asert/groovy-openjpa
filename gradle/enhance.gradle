@@ -1,0 +1,29 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Build-time enhancement: run OpenJPA's PCEnhancer over the groovyc output,
+// rewriting the entity class files in place.
+def enhance = tasks.register('enhance', JavaExec) {
+    def classesDir = sourceSets.main.groovy.destinationDirectory
+    dependsOn tasks.named('compileGroovy'), tasks.named('processResources')
+    classpath = files(classesDir, sourceSets.main.output.resourcesDir) + configurations.runtimeClasspath
+    mainClass = 'org.apache.openjpa.enhance.PCEnhancer'
+    // with no class arguments, PCEnhancer enhances the classes listed in persistence.xml
+    args '-d', classesDir.get().asFile.absolutePath
+    // rewrites compileGroovy's output in place, so don't declare it as input/output
+    outputs.upToDateWhen { false }
+}
+tasks.named('classes') { dependsOn enhance }
