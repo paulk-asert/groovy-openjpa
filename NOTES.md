@@ -28,6 +28,17 @@ specialised for the README's findings tables.
   throws `UnsupportedOperationException`. The plain `openjpa` jar can't be used as a
   `-javaagent`, so scripts use `RuntimeUnenhancedClasses=supported`.
 
+## `@CompileStatic` and `@POJO` entities
+
+- `@CompileStatic` on these simple entities made no behavioural difference on any stack.
+- `@CompileStatic` with `@POJO` (`groovy.transform.stc.POJO`, marked `@Incubating`) removes
+  `GroovyObject` and `metaClass` from the class. On OpenJPA all tests pass and the `metaClass`
+  warning goes away, though the setter warning remains.
+- Enhanced `@POJO` entities work with no Groovy jar on the classpath. A small Java program
+  compiled against them, then persisted and queried them, including a lazy association.
+- `@POJO` entities don't suit Grails Data. Changing a property on a loaded entity fails in GORM's
+  `DirtyCheckable.markDirty` with a `GroovyCastException` to `groovy.lang.GroovyObject`.
+
 ## GORM entities on OpenJPA
 
 - GORM's `$changedProperties` and `skipValidate` trait fields are `transient`, and
